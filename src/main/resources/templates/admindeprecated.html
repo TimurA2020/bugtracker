@@ -1,0 +1,36 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout/main.html">
+<div layout:fragment="page">
+    <div class="project-list">
+        <h1>Welcome to the admin page!</h1>
+        <h3>In this page you are able to add projects and change roles</h3>
+        <button class="btn btn-primary">Add a project</button>
+    </div>
+
+    <div class="scroll project-list" th:if="${users != null}">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">First</th>
+                <th scope="col">Last</th>
+                <th scope="col">Email</th>
+                <th scope="col">Details</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user: ${users}">
+                <th scope="row" th:text="${user.id}"></th>
+                <td th:text="${user.firstName}"></td>
+                <td th:text="${user.lastName}"></td>
+                <td th:text="${user.email}"></td>
+                <td><a th:href='"/userdetails/" + ${user.id}' class="btn btn-sm btn-primary">Details</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

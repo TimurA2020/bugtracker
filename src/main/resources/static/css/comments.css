@@ -1,0 +1,97 @@
+form{
+    width: 100%;
+}
+
+.card {
+    background-color: #fff;
+    border: none
+}
+
+.form-color {
+    background-color: #fafafa
+}
+
+.form-control {
+    height: 48px;
+    border-radius: 25px
+}
+
+.form-control:focus {
+    color: #495057;
+    background-color: #fff;
+    border-color: #35b69f;
+    outline: 0;
+    box-shadow: none;
+    text-indent: 10px
+}
+
+.c-badge {
+    background-color: #35b69f;
+    color: white;
+    height: 20px;
+    font-size: 11px;
+    width: 92px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2px
+}
+
+.comment-text {
+    font-size: 13px
+}
+
+.wish {
+    color: #35b69f
+}
+
+.user-feed {
+    font-size: 14px;
+    margin-top: 12px
+}
+
+.comment-name{
+    font-weight: 700;
+    font-size: large;
+}
+
+.delete-comment {
+    background-color: #0ca3d2; /* Blue background */
+    border: none; /* Remove borders */
+    color: white; /* White text */
+    padding: 3px 5px; /* Some padding */
+    font-size: 14px; /* Set a font size */
+    cursor: pointer; /* Mouse pointer on hover */
+    margin: 0 4px;
+}
+
+.delete-comment-red {
+    background-color: indianred; /* Blue background */
+    border: none; /* Remove borders */
+    color: white; /* White text */
+    padding: 3px 5px; /* Some padding */
+    font-size: 14px; /* Set a font size */
+    cursor: pointer; /* Mouse pointer on hover */
+    margin: 0 4px;
+}
+
+/* Darker background on mouse-over */
+.delete-comment:hover {
+    background-color: RoyalBlue;
+}
+
+.delete-comment-red:hover {
+    background-color: orangered;
+}
+
+.add-comment{
+    position: relative;
+    margin: 30px auto;
+    padding: 0;
+    width: 700px;
+    background: white;
+    border-radius: 3px;
+    -webkit-box-shadow: 0 0 200px rgba(255, 255, 255, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 200px rgba(255, 255, 255, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+}

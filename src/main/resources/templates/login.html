@@ -1,0 +1,27 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout/main.html">
+<div layout:fragment="page">
+    <div class="login">
+        <h1>Login to Web App</h1>
+    <form th:action="@{'/login'}" method="post">
+        <div id="alert" class="alert alert-danger" th:if="${(param.error != null) and (param.error[0] == 'true')}" role="alert">
+            Wrong username or password!
+        </div>
+        <p><input style="width: 96.5%;" type="text" name="user_email" placeholder="Username or Email"></p>
+        <p><input style="width: 96.5%;" type="password" name="user_password" placeholder="Password"></p>
+        <p class="remember_me" style="margin-left: 5px;">
+            <label>
+                <a href="/register">Register</a> or <a href="/demoaccount">use a demo account</a>
+            </label>
+        </p>
+        <p class="submit" style="margin-bottom: 5px;"><input type="submit" name="commit" value="Login"></p>
+        <div class="alert alert-success" role="alert" th:if="${(param.success != null) and (param.success[0] == 'true')}">
+            Your registration is complete! Use your credentials to login.
+        </div>
+    </form>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout/main.html">
+<div layout:fragment="page">
+    <form th:action="@{'/register'}" method="post">
+    <div class="login">
+        <h1>Register to Bug Tracker</h1>
+        <p><input type="text" id="email" name="email" placeholder="Email" required></p>
+        <div class="alert alert-danger mt-2" role="alert" th:if="${(param.usererror != null) and (param.usererror[0] == 'true')}">
+            This user already exists!
+        </div>
+        <p><input type="password" name="password" placeholder="Password" required></p>
+        <p><input type="password" name="password2" placeholder="Repeat you password" required></p>
+        <div class="alert alert-danger mt-2" role="alert" th:if="${(param.passworderror != null) and (param.passworderror[0] == 'true')}">
+            Passwords don't match!
+        </div>
+        <p><input type="text" id="firstName" name="firstName" placeholder="Enter your first name" required></p>
+        <p><input type="text" id="lastName" name="lastName" placeholder="Enter your last name" required></p>
+        <p class="submit"><input type="submit" id="submit" name="commit" value="Register"></p>
+    </div>
+    </form>
+    <script>
+        document.getElementById("firstName").value = localStorage.getItem("firstName");
+        document.getElementById("lastName").value = localStorage.getItem("lastName");
+        document.getElementById("email").value = localStorage.getItem("email");
+
+        document.getElementById("submit").addEventListener("click", function (){
+            localStorage.setItem("firstName", document.getElementById("firstName").value);
+            localStorage.setItem("lastName", document.getElementById("lastName").value);
+            localStorage.setItem("email", document.getElementById("email").value);
+        })
+    </script>
+</div>
+</body>
+</html>

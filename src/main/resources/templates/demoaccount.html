@@ -1,0 +1,45 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout/main.html">
+<div layout:fragment="page">
+    <div class="login">
+        <h1>Login to Web App</h1>
+        <div class="row row row-cols-1 row-cols-md-3 mb-3" style="display: flex">
+            <div class="col" style="margin: 5px 25px; text-align: center;">
+                <form action="/login" method="post">
+                    <input type="hidden" name="user_email" value="demouser@bugtracker.io">
+                    <input type="hidden" name="user_password" value="demouser">
+                    <input type="image" name="submit" src="/img/user.png" alt="submit" style="width: 80px;">
+                </form>
+                <h7 style="text-align: center">User</h7>
+            </div>
+            <div class="col" style="margin: 5px 25px; text-align: center;">
+                <form action="/login" method="post">
+                    <input type="hidden" name="user_email" value="demodeveloper@bugtracker.io">
+                    <input type="hidden" name="user_password" value="demodeveloper">
+                    <input type="image" name="submit" src="/img/dev.png" alt="submit" style="width: 80px;">
+                </form>
+                <h7 style="text-align: center">Developer</h7>
+            </div>
+            <div class="col" style="margin: 5px 25px; text-align: center;">
+                <form action="/login" method="post">
+                    <input type="hidden" name="user_email" value="demopm@bugtracker.io">
+                    <input type="hidden" name="user_password" value="demopm">
+                    <input type="image" name="submit" src="/img/pm.png" alt="submit" style="width: 80px;">
+                </form>
+                <h7 style="text-align: center">Project Manager</h7>
+            </div>
+            <div class="col" style="margin: 5px 25px; text-align: center;">
+                <form action="/login" method="post">
+                    <input type="hidden" name="user_email" value="demoadmin@bugtracker.io">
+                    <input type="hidden" name="user_password" value="demoadmin">
+                    <input type="image" name="submit" src="/img/admin.png" alt="submit" style="width: 80px;">
+                </form>
+                <h7>Admin</h7>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

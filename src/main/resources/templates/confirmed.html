@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" th:href="@{'/css/style.css'}">
+    <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+</head>
+<body onload="loadUser()">
+<nav class="navbar navbar-expand-lg" th:insert="~{navbar}"></nav>
+</div>
+<div class="project-list" id="projects">
+
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js" integrity="sha384-ODmDIVzN+pFdexxHEHFBQH3/9/vQ9uori45z4JjnFsRydbmQbmL5t1tQ0culUzyK" crossorigin="anonymous"></script>
+<script type="text/javascript">
+    var url = window.location.pathname;
+    var id = url.substring(url.lastIndexOf('/') + 1);
+    console.log(id);
+
+    function loadUser(){
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            const result = this.responseText;
+            var user = JSON.parse(result);
+            var htmlCode = "";
+            var modalButton = document.getElementById("projects");
+            console.log(user);
+
+            //selectors
+            var projects = document.getElementById("projects");
+            if(user != null) {
+                htmlCode += "<h1>Full Name: " + user["firstName"] + " " + user["lastName"] + "</h1>";
+                htmlCode += "<h3>Email: " + user["email"] + "</h3>";
+                htmlCode += "<h3>User role: " + user["roles"][0]["role"] + "</h3>";
+                if(user["roles"].length >= 2){
+                    htmlCode += "<h3>Secondary Role: " + user["roles"][1]["role"] + "</h3>";
+                }
+                if(user["roles"].length === 3){
+                    htmlCode += "<h3>Final role: " + user["roles"][2]["role"] + "</h3>";
+                }
+                htmlCode += modalButton;
+            }
+            var roles = [];
+
+            console.log(user["roles"].length);
+
+            for (var i = 0; i < user["roles"].length; i++){
+                roles.push(user["roles"][i]["role"]);
+            }
+
+            console.log(roles);
+
+            if(!roles.includes("ROLE_DEVELOPER")){
+                htmlCode += "<div style='display: flex'><form action='/addrole' method='post'><input name='role_id' type='hidden' value='2'>" +
+                    "<input type='hidden' name='user_id' value='" + id +  "'> " +
+                    "<button class='btn btn-primary' style='margin-right:5px'>Make developer</button></form>"
+            }
+            if(!roles.includes("ROLE_ADMIN")){
+                htmlCode += "<form action='/addrole' method='post'><input type='hidden' name='role_id' value='3'>" +
+                    "<input type='hidden' name='user_id' value='" + id +  "'> " +
+                    "<button class='btn btn-primary' style='margin-right:5px'>Make Admin</button></form></div>"
+            }
+
+            if(roles.includes("ROLE_DEVELOPER")){
+                htmlCode += "<div style='display: flex'><form action='/removerole' method='post'><input name='role_id' type='hidden' value='2'>" +
+                    "<input type='hidden' name='user_id' value='" + id +  "'> " +
+                    "<button class='btn btn-danger' style='margin-right:5px'>Remove Developer Role</button></form>"
+            }
+
+            if(roles.includes("ROLE_ADMIN")){
+                htmlCode += "<form action='/removerole' method='post'><input type='hidden' name='role_id' value='3'>" +
+                    "<input type='hidden' name='user_id' value='" + id +  "'> " +
+                    "<button class='btn btn-danger' style='margin-right:5px'>Remove admin Role</button></form></div>"
+            }
+
+
+
+            projects.innerHTML = htmlCode;
+        }
+        xhttp.open("GET", "http://localhost:8088/api/users/" + id);
+        xhttp.send();
+    }
+</script>
+</body>
+</html>

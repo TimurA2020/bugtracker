@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" th:href="@{'/css/style.css'}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+</head>
+<body onload="loadUser()">
+<style>
+    body{
+        background-color: #9eb9c2;
+    }
+
+    nav{
+        background-color: #9eb9c2;
+        border-bottom: 1px;
+    }
+
+    .button-10 {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1px 3px;
+        border-radius: 6px;
+        border: none;
+        color: #fff;
+        background-color: dimgray;
+        background-origin: border-box;
+        box-shadow: 0px 0.5px 1.5px rgba(54, 122, 246, 0.25), inset 0px 0.8px 0px -0.25px rgba(255, 255, 255, 0.2);
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+    }
+
+    .button-10:focus {
+        box-shadow: inset 0px 0.8px 0px -0.25px rgba(255, 255, 255, 0.2), 0px 0.5px 1.5px rgba(54, 122, 246, 0.25), 0px 0px 0px 3.5px rgba(58, 108, 217, 0.5);
+        outline: 0;
+        background: gray;
+        color: #fff;
+
+    }
+
+    .button-10:hover{
+        background: darkgray;
+        color: #fff;
+    }
+
+    .button-10-xl{
+        padding: 7px 12.5px;
+    }
+
+</style>
+<nav class="navbar navbar-expand-lg" th:insert="~{navbar}"></nav>
+</div>
+<div class="project-list" id="projects">
+
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js" integrity="sha384-ODmDIVzN+pFdexxHEHFBQH3/9/vQ9uori45z4JjnFsRydbmQbmL5t1tQ0culUzyK" crossorigin="anonymous"></script>
+<script type="text/javascript">
+    var url = window.location.pathname;
+    var id = url.substring(url.lastIndexOf('/') + 1);
+    console.log(id);
+
+    function loadUser(){
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            const result = this.responseText;
+            var user = JSON.parse(result);
+            var htmlCode = "";
+            console.log(user);
+
+            //selectors
+            var projects = document.getElementById("projects");
+            if(user != null) {
+                htmlCode += "<h1>Full Name: " + user["firstName"] + " " + user["lastName"] + "</h1>";
+                htmlCode += "<h3>Email: " + user["email"] + "</h3>";
+            }
+            var roles = [];
+
+            for (var i = 0; i < user["roles"].length; i++){
+                roles.push(user["roles"][i]["role"]);
+            }
+
+            htmlCode += "<div style='display: flex'>";
+            if(!roles.includes("ROLE_DEVELOPER")){
+                htmlCode += "<form action='/addrole' method='post'><input name='role_id' type='hidden' value='2'>" +
+                    "<input type='hidden' name='user_id' value='" + id +  "'> " +
+                    "<button class='btn button-10 button-10-xl' style='margin-right:5px'>Make developer</button></form>"
+            }
+            if(!roles.includes("ROLE_PROJECT_MANAGER")){
+                htmlCode += "<form action='/addrole' method='post'><input name='role_id' type='hidden' value='4'>" +
+                    "<input type='hidden' name='user_id' value='" + id +  "'> " +
+                    "<button class='btn button-10 button-10-xl' style='margin-right:5px'>Make Project Manager</button></form>"
+            }
+            if(!roles.includes("ROLE_ADMIN")){
+                htmlCode += "<form action='/addrole' method='post'><input type='hidden' name='role_id' value='3'>" +
+                    "<input type='hidden' name='user_id' value='" + id +  "'> " +
+                    "<button class='btn button-10 button-10-xl' style='margin-right:5px'>Make Admin</button></form>"
+            }
+
+            if(roles.includes("ROLE_DEVELOPER")){
+                htmlCode += "<div style='display: flex'><form action='/removerole' method='post'><input name='role_id' type='hidden' value='2'>" +
+                    "<input type='hidden' name='user_id' value='" + id +  "'> " +
+                    "<button class='btn button-10-red button-10-xl' style='margin-right:5px'><h6 style='margin: 2px;'>Developer <i class='fa fa-remove'></i></h6></button></form>"
+            }
+
+            if(roles.includes("ROLE_PROJECT_MANAGER")){
+                htmlCode += "<form action='/removerole' method='post'><input type='hidden' name='role_id' value='4'>" +
+                    "<input type='hidden' name='user_id' value='" + id +  "'> " +
+                    "<button class='button-10-red button-10-xl' style='margin-right:5px'><h6 style='margin: 2px;'>Project Manager <i class='fa fa-remove'></i></h6></button></form>"
+            }
+
+            if(roles.includes("ROLE_ADMIN")){
+                htmlCode += "<form action='/removerole' method='post'><input type='hidden' name='role_id' value='3'>" +
+                    "<input type='hidden' name='user_id' value='" + id +  "'> " +
+                    "<button class='button-10-red button-10-xl'  style='margin-right:5px'><h6 style='margin: 2px;'>Admin <span><i class='fa fa-remove'></span></i></h6></button></form>"
+            }
+
+            htmlCode += "</div>"
+
+            projects.innerHTML = htmlCode;
+        }
+        xhttp.open("GET", "http://localhost:8088/api/users/" + id);
+        xhttp.send();
+    }
+</script>
+</body>
+</html>

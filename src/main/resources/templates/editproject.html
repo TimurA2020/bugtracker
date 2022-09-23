@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" th:href="@{'/css/style.css'}">
+    <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+</head>
+<body onload="loadProject()">
+<style>
+
+    body{
+        background-color: #9eb9c2;
+    }
+    nav{
+        background-color: #9eb9c2;
+        border-bottom: 1px;
+    }
+    .button-10 {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1px 3px;
+        border-radius: 6px;
+        border: none;
+        color: #fff;
+        background-color: dimgray;
+        background-origin: border-box;
+        box-shadow: 0px 0.5px 1.5px rgba(54, 122, 246, 0.25), inset 0px 0.8px 0px -0.25px rgba(255, 255, 255, 0.2);
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+    }
+
+    .button-10:focus {
+        box-shadow: inset 0px 0.8px 0px -0.25px rgba(255, 255, 255, 0.2), 0px 0.5px 1.5px rgba(54, 122, 246, 0.25), 0px 0px 0px 3.5px rgba(58, 108, 217, 0.5);
+        outline: 0;
+        background: gray;
+        color: #fff;
+
+    }
+
+    .button-10:hover{
+        background: darkgray;
+        color: #fff;
+
+}
+</style>
+<nav class="navbar navbar-expand-lg" th:insert="~{adminnavbar}"></nav>
+
+<div class="container project-list" id="projects">
+    <div class="row mt-3">
+        <div class="col-12">
+            <label>Project Manager:</label>
+        </div>
+    </div>
+    <div class="row mt-1">
+        <div class="col-12 mb-1">
+            <select name = "author" class="form-select mb-1">
+                <option th:each="pm : ${pms}" th:value="${pm.id}" th:text="${pm.firstName + ' ' + pm.lastName}"
+                th:selected="${pm.id == author}"></option>
+            </select>
+        </div>
+    </div>
+</div>
+
+
+<!--Charts-->
+<!--<div class="charts">-->
+<!--<div id="typeChart" style="width: 300px; height: 200px;"></div>-->
+<!--<div id="priorityChart" style="width: 300px; height: 200px; margin-left: 10%;"></div>-->
+<!--<div id="statusChart" style="width: 300px; height: 200px; margin-left: 10%;"></div>-->
+<!--</div>-->
+
+
+<!--javascript-->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js" integrity="sha384-ODmDIVzN+pFdexxHEHFBQH3/9/vQ9uori45z4JjnFsRydbmQbmL5t1tQ0culUzyK" crossorigin="anonymous"></script>
+<script type="text/javascript" src="/js/piechart.js"></script>
+<script type="text/javascript">
+
+    var updatecode = "[[${param.updatecode}]]";
+    console.log(updatecode);
+
+    if(updatecode == 1){
+        alert("Project updated successfully!");
+    }
+    if(updatecode == 2){
+        alert("Failed to update the project!");
+    }
+
+    var url = window.location.pathname;
+    var id = url.substring(url.lastIndexOf('/') + 1);
+
+    function loadProject(){
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            const result = this.responseText;
+            var projectList = JSON.parse(result);
+            var htmlCode = "";
+            var select = document.getElementById("projects").innerHTML;
+
+            //selectors
+            var projects = document.getElementById("projects")
+
+            if(projectList != null) {
+                htmlCode += "<form action=\"/updateproject\" method=\"post\">\n" +
+                    "                <div class=\"modal-header\">\n" +
+                    "                    <h5 class=\"modal-title\">Edit project</h5>\n" +
+                    "                </div>\n" +
+                    "                <div class=\"modal-body\">\n" +
+                    "                    <div class=\"row mt-3\">\n" +
+                    "                        <div class=\"col-12\">\n" +
+                    "                            <label>Project title:</label>\n" +
+                    "                        </div>\n" +
+                    "                    </div>\n" +
+                    "                    <div class=\"row mt-1\">\n" +
+                    "                        <div class=\"col-12\">\n" +
+                    "                            <input placeholder=\"Project title\" class=\"form-control\" type=\"text\" value='" + projectList["name"] + "' name=\"title\" required>\n" +
+                    "                            <input class=\"form-control\" type=\"hidden\" value='" + id + "' name=\"project_id\" >\n" +
+                    "                        </div>\n" +
+                    "                    </div>\n" +
+                    "                    <div class=\"row mt-3\">\n" +
+                    "                        <div class=\"col-12\">\n" +
+                    "                            <label>Describe the project:</label>\n" +
+                    "                        </div>\n" +
+                    "                    </div>\n" +
+                    "                    <div class=\"row mt-1\">\n" +
+                    "                        <div class=\"col-12\">\n" +
+                    "                            <textarea rows=\"4\" placeholder=\"Project description\" class=\"form-control mb-1\" type=\"text\" name=\"content\" required>" + projectList["content"]  +  " </textarea>\n" +
+                    "                        </div>\n" +
+                    "                    </div>";
+
+                htmlCode += select;
+
+                    htmlCode += "                </div>\n" +
+                    "                <div class=\"modal-footer\">\n" +
+                    "                    <button type=\"submit\" class=\"button-10-green me-1\">Update project details</button>\n" +
+                    "                    <button type=\"button\" class=\"button-10-red\" data-bs-toggle=\"modal\" data-bs-target=\"#exampleModal\">Delete Project</button>\n" +
+                    "                </div>\n" +
+                    "            </form>";
+                htmlCode += "<div class=\"modal fade\" id=\"exampleModal\" tabindex=\"-1\" aria-labelledby=\"exampleModalLabel\" aria-hidden=\"true\">\n" +
+                    "    <div class=\"modal-dialog\">\n" +
+                    "        <form action=\"/deleteproject\" method=\"post\">\n" +
+                    "        <div class=\"modal-content\">\n" +
+                    "            <div class=\"modal-header\">\n" +
+                    "                <h5 class=\"modal-title\" id=\"exampleModalLabel\">Delete Project</h5>\n" +
+                    "                <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"modal\" aria-label=\"Close\"></button>\n" +
+                    "            </div>\n" +
+                    "            <div class=\"modal-body\">\n" +
+                    "                <h3>Are you sure you want to delete this project?</h3>\n" +
+                    "                <input type=\"hidden\" name='project_id' value='" + projectList["id"]  + "'>\n" +
+                    "            </div>\n" +
+                    "            <div class=\"modal-footer\">\n" +
+                    "                <button type=\"button\" class=\"button-10-black\" data-bs-dismiss=\"modal\">Close</button>\n" +
+                    "                <button type=\"submit\" class=\"button-10-red\">Delete Project</button>\n" +
+                    "            </div>\n" +
+                    "        </div>\n" +
+                    "        </form>\n" +
+                    "    </div>\n" +
+                    "</div>"
+            }
+            projects.innerHTML = htmlCode;
+        }
+        xhttp.open("GET", "http://localhost:8088/api/projects/" + id);
+        xhttp.send();
+    }
+</script>
+
+</body>
+</html>

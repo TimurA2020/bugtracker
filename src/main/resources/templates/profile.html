@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" th:href="@{'/css/style.css'}">
+    <link rel="stylesheet" type="text/css" th:href="@{'/css/user.css'}">
+    <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+</head>
+<body onload="loadUser()">
+<nav class="navbar navbar-expand-lg" th:insert="~{navbar}"></nav>
+
+<div class="project-list" id="projects">
+    <img th:src="${'/profilepics/' + #authentication.getPrincipal().getProfilePic}" height="100" width="100">
+</div>
+
+<!--MODAL FOR UPDATING INFO-->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="/updatecredentials" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label>Name:</label>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-12">
+                            <input th:placeholder="${user.firstName}" class="form-control" th:value="${user.firstName}" type="text" name="first-name" required>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label>Surname:</label>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-12">
+                            <input th:placeholder="${user.lastName}" th:value="${user.lastName}" class="form-control" type="text" name="last-name" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="button-10-black" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="button-10-green">Save changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!--Modal for updating password-->
+<div class="modal fade" id="updatePassword" tabindex="-1" aria-labelledby="updatePasswordLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/updatepassword" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updatePasswordLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label>Old Password:</label>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-12">
+                            <input placeholder="Enter your old password" class="form-control" type="password" name="old-password" required>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label>Enter your new password:</label>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-12">
+                            <input placeholder="Enter your new password" class="form-control" type="password" name="new-password" required>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label>Repeat your new password:</label>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-12">
+                            <input placeholder="Repeat password" class="form-control" type="password" name="re-new-password" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="button-10-black" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="button-10-green">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!--DELETE USER-->
+<div class="modal fade" id="deletePassword" tabindex="-1" aria-labelledby="deletePasswordLabel" aria-hidden="true">
+    <form action="/deleteuser" method="post">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deletePasswordLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete your account?
+                    <input type="hidden" th:value="${user_id}" name="id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="button-10-black" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="button-10-red">Delete</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<!--Upload pic-->
+<div class="modal fade" id="pictureModal" tabindex="-1" aria-labelledby="pictureModalLabel" aria-hidden="true">
+    <form action="/uploadphoto" method="post" enctype="multipart/form-data">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pictureModalLabel">Upload picture</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Upload your profile picture (Size limit: 5MB)
+                    <input type="file" name="profile_pic">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="button-10-black" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="button-10-green">Upload</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js" integrity="sha384-ODmDIVzN+pFdexxHEHFBQH3/9/vQ9uori45z4JjnFsRydbmQbmL5t1tQ0culUzyK" crossorigin="anonymous"></script>
+<script type="text/javascript">
+    var user_id = "[[${user_id}]]";
+    console.log("user id is " + user_id);
+
+    var error = "[[${param.errorcode}]]";
+
+    if(error == 1){
+        alert("The old password you entered doesn't match");
+    }
+    if(error == 2){
+        alert("Repeated password doesn't match");
+    }
+    if(passwordsuccess == "true"){
+        alert("Password changed successfully!")
+    }
+
+    function loadUser(){
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            const result = this.responseText;
+            var user = JSON.parse(result);
+            var htmlCode = "";
+            var restCode = document.getElementById("projects").innerHTML;
+            // var modalButton = document.getElementById("projects");
+            console.log(user);
+
+            //selectors
+            var projects = document.getElementById("projects");
+            if(user != null) {
+                htmlCode += " <div class=\"container mt-4 mb-4 p-3 d-flex justify-content-center\">\n" +
+                    "        <div class=\"card p-4\">\n" +
+                    "            <div class=\" image d-flex flex-column justify-content-center align-items-center\">\n" +
+                    "                <button class=\"btn btn-1 btn-secondary\">\n" +
+                    "                    " + restCode + "</button> <span class=\"idd mt-2\">" + user["firstName"] + " " + user["lastName"] + "</span> <span class=\"idd1 mt-1 mb-2\">timazizov@gmail.com</span>\n" +
+                    "                <button type=\"button\" class=\"button-10 mb-2\" style=\"padding: 6px 12px; font-size: 16px;\" data-bs-toggle=\"modal\" data-bs-target=\"#exampleModal\">Edit profile</button>\n" +
+                    "                <button type=\"button\" class=\"button-10 mb-2\" style=\"margin-left:2px; padding: 6px 12px; font-size: 16px;\" data-bs-toggle=\"modal\" data-bs-target=\"#pictureModal\">Add profile picture</button>\n" +
+                    "                <button type=\"button\" class=\"button-10-green mb-1\" style=\"margin-left:2px; padding: 6px 12px; font-size: 16px;\" data-bs-toggle=\"modal\" data-bs-target=\"#updatePassword\">Update password</button>\n" +
+                    "                <button type=\"button\" class=\"button-10-red\" style=\"margin-left:2px; padding: 6px 12px; font-size: 16px;\" data-bs-toggle=\"modal\" data-bs-target=\"#deletePassword\">\n" +
+                    "                    Delete account\n" +
+                    "                </button>\n" +
+                    "            </div>\n" +
+                    "        </div>\n" +
+                    "    </div>";
+            }
+
+            projects.innerHTML = htmlCode;
+        }
+        xhttp.open("GET", "http://localhost:8088/api/users/" + user_id);
+        xhttp.send();
+    }
+</script>
+</body>
+</html>

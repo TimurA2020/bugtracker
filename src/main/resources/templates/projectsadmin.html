@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" th:href="@{'/css/style.css'}">
+    <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+</head>
+<body onload="loadProjects()">
+<style>
+
+    body{
+        background-color: #9eb9c2;
+    }
+    nav{
+        background-color: #9eb9c2;
+        border-bottom: 1px;
+    }
+    .button-10 {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1px 3px;
+        border-radius: 6px;
+        border: none;
+        color: #fff;
+        background-color: dimgray;
+        background-origin: border-box;
+        box-shadow: 0px 0.5px 1.5px rgba(54, 122, 246, 0.25), inset 0px 0.8px 0px -0.25px rgba(255, 255, 255, 0.2);
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+    }
+
+    .button-10:focus {
+        box-shadow: inset 0px 0.8px 0px -0.25px rgba(255, 255, 255, 0.2), 0px 0.5px 1.5px rgba(54, 122, 246, 0.25), 0px 0px 0px 3.5px rgba(58, 108, 217, 0.5);
+        outline: 0;
+        background: gray;
+        color: #fff;
+
+    }
+
+    .button-10:hover{
+        background: darkgray;
+        color: #fff;
+
+    }
+</style>
+<nav class="navbar navbar-expand-lg" th:insert="~{adminnavbar}"></nav>
+
+<!--project list-->
+<div class="project-list" id="projects">
+    <button sec:authorize = "hasAnyRole('ROLE_ADMIN', 'ROLE_PROJECT_MANAGER')" type="button" class="btn btn-sm button-10-green mb-1" data-bs-toggle="modal" data-bs-target="#exampleModal">Add project</button>
+</div>
+
+
+<!-- Modal for creating a project -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/addproject" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label>Project title:</label>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-12">
+                            <input placeholder="Project title" class="form-control" type="text" name="title" required>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label>Describe the project:</label>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-12">
+                            <textarea rows="4" placeholder="Project description" class="form-control" type="text" name="description" required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="button-10-black" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="button-10-green">Create project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!--Charts-->
+<!--<div class="charts">-->
+<!--<div id="typeChart" style="width: 300px; height: 200px;"></div>-->
+<!--<div id="priorityChart" style="width: 300px; height: 200px; margin-left: 10%;"></div>-->
+<!--<div id="statusChart" style="width: 300px; height: 200px; margin-left: 10%;"></div>-->
+<!--</div>-->
+
+
+<!--javascript-->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js" integrity="sha384-ODmDIVzN+pFdexxHEHFBQH3/9/vQ9uori45z4JjnFsRydbmQbmL5t1tQ0culUzyK" crossorigin="anonymous"></script>
+<script type="text/javascript" src="/js/piechart.js"></script>
+<script type="text/javascript">
+    function loadProjects(){
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            const result = this.responseText;
+            var projectList = JSON.parse(result);
+            var htmlCode = document.getElementById("projects").innerHTML;
+
+            //selectors
+            var projects = document.getElementById("projects");
+
+            function dotdotdot(text){
+                if(text.length>= 50){
+                    return "...";
+                }
+                else
+                    return " ";
+            }
+
+            htmlCode += "<table class='table'<thead><th scope=\"col\">#</th><th scope=\"col\">Title</th><th scope=\"col\">Description</th><th scope=\"col\">Project Manager</th><th scope=\"col\">Edit</th></thead>";
+
+            for(var i = 0; i < projectList.length; i++) {
+                var content = projectList[i]["content"];
+                htmlCode += "<tbody> <tr><th scope=\"row\">" + (i+1) + "</th>";
+                htmlCode += "<td>" + projectList[i]["name"] + "</td>";
+                htmlCode += "<td>" + projectList[i]["content"].substring(0, 50) + "" + dotdotdot(content) + "</td>";
+                htmlCode += "<td>" + projectList[i]["author"]["firstName"] + " " + projectList[i]["author"]["lastName"] + "</td>";
+                htmlCode += "<td><a class='btn button-10' href='/editproject/" + projectList[i]["id"] + "'>Details</a></td></tr>";
+            }
+            projects.innerHTML = htmlCode;
+        }
+        xhttp.open("GET", "http://localhost:8088/api/projects/");
+        xhttp.send();
+    }
+</script>
+<script type="text/javascript">
+
+</script>
+
+</body>
+</html>

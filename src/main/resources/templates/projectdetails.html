@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" th:href="@{'/css/style.css'}">
+    <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+</head>
+<body onload="loadTickets(), drawChart()">
+<nav class="navbar navbar-expand-lg" th:insert="~{navbar}"></nav>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/addticket" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label>Ticket title:</label>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-12">
+                            <input placeholder="Ticket title" class="form-control" type="text" name="title" required>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label>Describe the ticket:</label>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-12">
+                            <textarea rows="4" placeholder="Ticket description" class="form-control" type="text" name="description" required></textarea>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label>Ticket type:</label>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-12">
+                            <select class="form-control" name="type" required>
+                                <option value="Bug">Bug</option>
+                                <option value="Feature">Feature</option>
+                                <option value="Issue">Issue</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label>Ticket priority:</label>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-12">
+                            <select class="form-control" name="priority" required>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label>Assigned developer:</label>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-12">
+                            <select class="form-select" name="dev" required>
+                                <option th:each="dev : ${developers}" th:value="${dev.id}" th:text="${dev.firstName + ' ' + dev.lastName}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <input type="hidden" name="project_id" th:value="${id}">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="button-10-black" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="button-10-green">Create ticket</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="project-list" id="projects">
+        <button sec:authorize = "hasAnyRole('ROLE_ADMIN', 'ROLE_DEVELOPER', 'ROLE_PROJECT_MANAGER')" type="button" class="btn btn-sm button-10-green mb-1" data-bs-toggle="modal" data-bs-target="#exampleModal">Add Ticket</button>
+</div>
+
+<!--Charts-->
+<div class="charts">
+    <div id="typeChart" style="width: 300px; height: 200px;"></div>
+    <div id="priorityChart" style="width: 300px; height: 200px; margin-left: 8%;"></div>
+    <div id="statusChart" style="width: 300px; height: 200px; margin-left: 8%;"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js" integrity="sha384-ODmDIVzN+pFdexxHEHFBQH3/9/vQ9uori45z4JjnFsRydbmQbmL5t1tQ0culUzyK" crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+
+    var url = window.location.pathname;
+    var id = url.substring(url.lastIndexOf('/') + 1);
+    console.log(id);
+
+    function loadTickets(){
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            const result = this.responseText;
+            var ticketList = JSON.parse(result);
+            var htmlCode = document.getElementById("projects").innerHTML;
+            console.log(ticketList);
+
+            //selectors
+            var projects = document.getElementById("projects")
+
+            htmlCode += "<table class='table table-sortable'<thead><th scope=\"col\">#</th><th scope=\"col\">Title</th><th scope=\"col\">Priority</th><th scope=\"col\">Type</th><th scope=\"col\">Status</th><th scope=\"col\">Creator</th><th scope=\"col\">Assigned Developer</th><th scope=\"col\">Details</th></thead>"
+
+            for (var i = 0; i < ticketList.length; i++) {
+                htmlCode += "<tbody> <tr><th scope=\"row\">" + (i+1) + "</th>";
+                htmlCode += "<td>" + ticketList[i]["title"] + "</td>";
+                htmlCode += "<td>" + ticketList[i]["priority"] +  "</td>"
+                htmlCode += "<td>" + ticketList[i]["type"] + "</td>";
+                htmlCode += "<td>" + ticketList[i]["status"] + "</td>";
+                htmlCode += "<td>" + ticketList[i]["ticketAuthor"]["firstName"] + " " + ticketList[i]["ticketAuthor"]["lastName"] + "</td>";
+                htmlCode += "<td>" + ticketList[i]["assignedDeveloper"]["firstName"] + " " + ticketList[i]["assignedDeveloper"]["lastName"] + "</td>";
+                htmlCode += "<td><a class='btn button-10' href='/ticketdetails/" + ticketList[i]["id"] + "'>Details</a></td></tr>";
+            }
+
+            projects.innerHTML = htmlCode;
+        }
+        xhttp.open("GET", "http://localhost:8088/api/tickets/ticketsbyproject/" + id);
+        xhttp.send();
+    }
+</script>
+<script type="text/javascript" src="/js/piechart.js"></script>
+
+<script type="text/javascript">
+    var url = window.location.pathname;
+    var id = url.substring(url.lastIndexOf('/') + 1);
+    console.log(id);
+
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+
+        //parsing data
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            const result = this.responseText;
+            var ticketList = JSON.parse(result);
+
+            //ticket type data insertion to graph
+
+            var data = google.visualization.arrayToDataTable([
+                ['Task', 'Hours per Day'],
+                ['Bugs',     ticketList["Bugs"]],
+                ['Features',     ticketList["Features"]],
+                ['Issues',     ticketList["Issues"]],
+                ['Other',  ticketList["Other"]],
+            ]);
+
+            var options = {
+                title: 'Tickets by Type',
+                colors: ['#ffa600', '#35b69f', '#ec8f6e', '#58508d', '#ff6361']
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('typeChart'));
+            chart.draw(data, options);
+
+            //----------
+
+            //Graphs by priorities
+
+            //ticket priority data insertion to graph
+
+            var priorityData = google.visualization.arrayToDataTable([
+                ['Task', 'Hours per Day'],
+                ['High',     ticketList["High"]],
+                ['Medium',     ticketList["Medium"]],
+                ['Low',     ticketList["Low"]],
+            ]);
+
+            var priorityOptions = {
+                title: 'Tickets by Priority',
+                colors: ['#ffa600', '#35b69f', '#ec8f6e', '#58508d', '#ff6361']
+            };
+
+            //let's draw the chart based on our data
+
+            var priorityChart = new google.visualization.PieChart(document.getElementById('priorityChart'));
+            priorityChart.draw(priorityData, priorityOptions);
+
+
+            //-------------------
+
+            //Graphs by statuses
+            //ticket priority data insertion to graph
+
+            var statusData = google.visualization.arrayToDataTable([
+                ['Task', 'Hours per Day'],
+                ['New',     ticketList["New"]],
+                ['In Progress',     ticketList["In-Progress"]],
+                ['Resolved',     ticketList["Resolved"]],
+            ]);
+
+            var statusOptions = {
+                title: 'Tickets by Status',
+                colors: ['#ffa600', '#35b69f', '#ec8f6e', '#58508d', '#ff6361']
+            };
+
+            //let's draw the chart based on our data
+
+            var statusChart = new google.visualization.PieChart(document.getElementById('statusChart'));
+            statusChart.draw(statusData, statusOptions);
+        }
+        xhttp.open("GET", "http://localhost:8088/api/tickets/chartdatafortickets/" + id);
+        xhttp.send();
+
+    }
+</script>
+</body>
+</html>
